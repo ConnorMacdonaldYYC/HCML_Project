@@ -12,6 +12,8 @@ data.columns = ["ID", "age", "gender", "education", "country", "ethnicity", "nsc
                 "ketamine", "legalh", "lsd", "meth", "mushrooms", "nicotine", "semer", "vsa"]
 #print(data.head())
 
+data = data[data.semer == "CL0"]
+
 # Extract features
 features = data[["age", "gender", "education", "country", "ethnicity", "nscore", "escore", 
                 "oscore", "ascore", "cscore", "impulsive", "ss"]].copy()
