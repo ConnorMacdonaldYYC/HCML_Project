@@ -4,6 +4,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+#import joblib
 
 data =  pd.read_csv('drug_consumption.data', sep=",")
 data.columns = ["ID", "age", "gender", "education", "country", "ethnicity", "nscore", "escore", 
@@ -66,3 +67,7 @@ print(f"Accuracy: {accuracy:.2f}")
 # Calculate confusion matrix
 cm = confusion_matrix(y_test, y_pred)
 print(cm)
+
+#saving model to use elsewhere
+#joblib.dump(mlp, 'mlp_model.pkl')
+#joblib.dump(scaler, 'scaler.pkl')
