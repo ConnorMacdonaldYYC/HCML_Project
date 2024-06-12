@@ -1,18 +1,18 @@
 from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import KMeans, SpectralClustering
-from sklearn.metrics import silhouette_score, davies_bouldin_score, roc_auc_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score, auc, roc_curve
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
 import pandas as pd
 
 
-def cluster_evaluation(explanation_values, y, k_values_max=10):
+def run_evaluations(explanation_values, y, k_values_max=9):
     scaled_values = StandardScaler().fit_transform(explanation_values)
     pairwise_distances = squareform(pdist(scaled_values, "euclidean"))
     cluster_evaluations = []
 
-    for k in range(k_values_max):
+    for k in range(2, k_values_max):
         kmeans = KMeans(n_clusters=k).fit(pairwise_distances)
         spectral_clusters = SpectralClustering(
             n_clusters=k, affinity="precomputed"
@@ -20,13 +20,13 @@ def cluster_evaluation(explanation_values, y, k_values_max=10):
 
         silhouette_kmeans = silhouette_score(pairwise_distances, kmeans.labels_)
         silhouette_spectral = silhouette_score(
-            spectral_clusters, spectral_clusters.labels_
+            pairwise_distances, spectral_clusters.labels_
         )
         db_index_kmeans = davies_bouldin_score(pairwise_distances, kmeans.labels_)
         db_index_spectral = davies_bouldin_score(
-            spectral_clusters, spectral_clusters.labels_
+            pairwise_distances, spectral_clusters.labels_
         )
-        cluster_evaluation.append(
+        cluster_evaluations.append(
             [
                 k,
                 silhouette_kmeans,
@@ -38,7 +38,7 @@ def cluster_evaluation(explanation_values, y, k_values_max=10):
 
     param_grid = {
         "n_estimators": [100, 200, 300],
-        "max_features": ["auto", "sqrt", "log2"],
+        "max_features": [12, "sqrt", "log2"],
         "max_depth": [4, 6, 8, 10],
         "criterion": ["gini", "entropy"],
     }
@@ -65,10 +65,13 @@ def cluster_evaluation(explanation_values, y, k_values_max=10):
 
     best_rf.fit(X_train, y_train)
     y_pred = best_rf.predict_proba(X_test)[:, 1]
-    auroc = roc_auc_score(y_test, y_pred)
+    fpr, tpr, thresholds = roc_curve(y_test, y_pred)
+
+    # Compute the AUC
+    roc_auc = auc(fpr, tpr)
 
     evaluation_df = pd.DataFrame(
-        cluster_evaluation,
+        cluster_evaluations,
         columns=[
             "k",
             "Silhouette Kmeans",
@@ -78,4 +81,4 @@ def cluster_evaluation(explanation_values, y, k_values_max=10):
         ],
     )
 
-    return evaluation_df, auroc
+    return evaluation_df, fpr, tpr, roc_auc
