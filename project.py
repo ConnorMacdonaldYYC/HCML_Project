@@ -48,14 +48,12 @@ def load_data():
 
     data = data[data.semer == "CL0"]
 
-    # Extract features
+    # Extract features, removed gender and ethnicity 
     features = data[
         [
             "age",
-            "gender",
             "education",
             "country",
-            "ethnicity",
             "nscore",
             "escore",
             "oscore",
@@ -107,9 +105,9 @@ if __name__ == "__main__":
 
     # Create model
     mlp = MLPClassifier(
-        hidden_layer_sizes=(64, 32),
+        hidden_layer_sizes=(32, 16),
         activation="logistic",
-        max_iter=1000,
+        max_iter=5000,
         random_state=42,
     )
 
