@@ -51,9 +51,6 @@ def load_data():
     # Extract features, removed gender and ethnicity 
     features = data[
         [
-            "age",
-            "education",
-            "country",
             "nscore",
             "escore",
             "oscore",
