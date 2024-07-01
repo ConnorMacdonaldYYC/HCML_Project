@@ -63,15 +63,18 @@ def load_data():
     # print(features.head())
 
     categorical = data.select_dtypes(include=["object"]).columns.tolist()
-    for i in categorical:
-        print(data[i].value_counts())
+
     # This shows that nicotine and cannabis have the most even spread of numbers over the classes, so these
     # might be the most interesting to use for our classification
+    #for i in categorical:
+    #    print(data[i].value_counts())
 
     # Transform categorical columns to numerical
     label_encoder = LabelEncoder()
     for column in categorical:
         data[column] = label_encoder.fit_transform(data[column])
+
+    # We choose to classify the use of cannabis
 
     # Turn the 7 class classification into binary classification
     def binary(row):
